@@ -19,8 +19,6 @@ const Game = ({ verifyLetter, pickedWord, pickedCategory, letters, guessedLetter
 
   }
 
-  console.log(pickedWord);
-  
   return (
     <div>
       <div className="game">
