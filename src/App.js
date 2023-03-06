@@ -18,8 +18,6 @@ const stages = [
 
 function App() {
 
-
-
   const [gameStage, setGameStage] = useState(stages[0].name);
   const [words] = useState(wordsList);
   const [pickedWord, setPickedWord] = useState("");
@@ -28,7 +26,7 @@ function App() {
   const [guessedLetters, setGuessedLetters] = useState([]);
   const [wrongLetters, setWrongLetters] = useState([]);
   const [guesses, setGuesses] = useState(3);
-  const [score, setScore] = useState(0);
+  const [score, setScore] = useState(50);
 
   const pickWordAndCategory = () => {
 
@@ -41,7 +39,9 @@ function App() {
   };
 
   //iniciar game
-  const startGame = () => {
+  const startGame = useCallback(() => {
+
+    clearLetterStates();
 
     //pick word and pick category
     const { word, category } = pickWordAndCategory();
@@ -55,7 +55,7 @@ function App() {
     setLetters(wordLetters);
 
     setGameStage(stages[1].name);
-  };
+  }, [pickWordAndCategory]);
 
   //processar letra inputada
   const verifyLetter = (letter) => {
@@ -78,8 +78,7 @@ function App() {
         normalizedLetter,
       ]);
 
-      setGuesses((actualNumberOfGuesses) => actualNumberOfGuesses - 1)
-
+      setGuesses((actualNumberOfGuesses) => actualNumberOfGuesses - 1);
     }
 
     //setGameStage(stages[2].name);
@@ -93,9 +92,22 @@ function App() {
 
   useEffect(() => {
 
-    clearLetterStates();
+    const uniqueLetters = [...new Set(letters)];
 
-    if(guesses <= 0){
+    if(guessedLetters.length === uniqueLetters.length){
+
+      setScore((actualScore) => actualScore+=100);
+
+      startGame();
+    }
+
+  }, [guessedLetters, letters, startGame]);
+
+
+  useEffect(() => {
+
+    if(guesses === 0){
+      clearLetterStates();
       setGameStage(stages[2].name);
     }
   }, [ guesses ]);
@@ -106,7 +118,7 @@ function App() {
 
     setScore(0);
     setGuesses(3);
-    
+
     setGameStage(stages[0].name);
   }
 
@@ -123,7 +135,7 @@ function App() {
               guesses = { guesses }
               score = { score }
         />)}
-      {gameStage === "end" && <GameOver retry={retry} />}
+      {gameStage === "end" && <GameOver retry={retry} score = { score } />}
     </div>
   );
 }
